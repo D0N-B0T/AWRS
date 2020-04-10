@@ -2,7 +2,7 @@
 
 #	This tool is presented 'as is' and throuh the time will be improved up.
 #nwo
-#					version 0.6.010420 										:) <3 Ty
+#					version 										:) <3 Ty
 #
 #	Please if you like it give me more ideas to make it better.
 #
@@ -20,7 +20,7 @@ dominio=$1
 	echo -e "        +@'WWWWWW#%:."
 	echo -e "       &@'/        ':+."
 	echo -e "  __ e@'/___________\@"
-	echo -e "  ##e@#/;'__0.6__###/"            $red$WHITE"Easy recon"$normal$red
+	echo -e "  ##e@#/;'#########/"            $red$WHITE"Easy recon"$normal$red
 	echo -e "   e@/"								$red$WHITE "for"$normal$red
 	echo -e "  :@/        "					$red$WHITE "BugHunters."$normal$red
 	echo -e " @b'\______________ "
