@@ -13,6 +13,7 @@ fecha=$(date "+%d%m%Y")
 lightyellow=`echo -en "\e[93m"`;red=`echo -en "\e[31m"`;green=`echo -en "\e[32m"`;normal=`echo -en "\e[0m"`;WHITE=`echo -en "\e[107m"`;
 
 #install req tools / addons before use. See  readme.md for more information.
+TOOLS=( "nmap" "gobuster" "jq" "uniq" "sublist3r" "subfinder" "amass" "masscan" "gau" "concurl" "CeWL" "dirsearch" "httprobe" "pup")
 
 dominio=$1
 
