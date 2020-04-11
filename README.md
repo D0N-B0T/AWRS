@@ -1,11 +1,11 @@
 
-# Recon script.
+# AWRS.
 
 
 
 ```bash
 
-./enum.sh webscantest.com
+./awrs.sh webscantest.com
 ```
 
 
