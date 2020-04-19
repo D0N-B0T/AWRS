@@ -12,8 +12,6 @@
 fecha=$(date "+%d%m%Y")
 lightyellow=`echo -en "\e[93m"`;red=`echo -en "\e[31m"`;green=`echo -en "\e[32m"`;normal=`echo -en "\e[0m"`;WHITE=`echo -en "\e[107m"`;
 
-#install req tools / addons before use. See  readme.md for more information.
-TOOLS=( "nmap" "gobuster" "jq" "uniq" "sublist3r" "subfinder" "amass" "masscan" "gau" "concurl" "CeWL" "dirsearch" "httprobe" "pup")
 
 dominio=$1
 
@@ -33,32 +31,16 @@ echo ""
 
 
 proceso(){
-	echo -ne '['$green'#'$normal'====================](0%)\r'
-	sleep 1
-
 	{
 		curl -s "http://web.archive.org/cdx/search/cdx?url=*."$dominio"/*&output=text&fl=original&collapse=urlkey" |sort| sed -e 's_https*://__' -e "s/\/.*//" -e 's/:.*//' -e 's/^www\.//' | uniq >>$dominio.txt
-	} &> /dev/null
-	echo -ne '['$green'######'$normal'===============](25%)\r'
-
-	{
 		amass enum --passive -d $dominio -json $dominio.json
 		jq .name $dominio.json | sed "s/\"//g"| uniq | tee -a $dominio.txt
 		rm $dominio.json
-	} &> /dev/null
-	echo -ne '['$green'############'$normal'==========](50%)\r'
-
-	{
 		subfinder -d $dominio | grep $dominio |uniq >>$dominio.txt
-	} &> /dev/null
-	echo -ne '['$green'#################'$normal'=====](75%)\r'
-
-	{
 		findomain -t $dominio -u $dominio.findomain.txt
 		cat $dominio.findomain.txt | grep $dominio |uniq >>$dominio.txt
+		# echo -e "No target.\nUsage: bash $0 target.com" && exit || mkdir $1; cd $1; echo "$1" | cut -d'.' -f1 | metabigor net --org -o metabigor.out; findomain -q -t $1 -u subdomain.out; cat subdomain.out | filter-resolved > subdomain-resolved.out; subjack -w subdomain-resolved.out -t 100 -timeout 30 -ssl -a -v -o subjack.out; cat subdomain-resolved.out | xargs dig +short > ips.txt; cat subdomain-resolved.out | naabu -silent -nC -ports full -t 50 | httprobe | tee hosts.out; webanalyze -update; webanalyze -hosts hosts.out > webanalyze.out; dirsearch -L hosts.out -e php,json -x 400,403,429,502,503 -t 200 -F --simple-report dirsearch.out -r; cat hosts.out dirsearch.out > urls.txt; cat urls.txt | xargs -I % linkfinder -d -o cli -i % > linkfinder.out; cat urls.txt | cors-blimey > cors.out; mkdir screenshots; cd screenshots; cat ../urls.txt | xargs -I % gowitness single --url=%; cd ..; cat urls.txt | xargs -I % xsscrapy -u % -c 50 > xsscrapy.out; arjun --urls urls.txt -t 100 --get > arjun.out; meg -d 1000 -v / urls.txt; gf -list | xargs -I % gf %
 	} &> /dev/null
-
-	echo -ne '['$green'#######################'$normal'](100%) DONE\r'
 	cat $dominio.txt|sort -u >> $dominio-$fecha.txt
 	cat $dominio.txt|httprobe -t 15000 -c 50|cut -d "/" -f3|sort -u |tee alive_$dominio-$fecha.txt
 	echo ""
@@ -123,14 +105,4 @@ if [[ $# -eq 0 ]]; then
 }
 
 
-
-
-##PROBAR HTTPROBE.
-
-
-
-
-
-#es mejor usar FFUF.
-#[[ -z $1 ]] && echo -e "No target.\nUsage: bash $0 target.com" && exit || mkdir $1; cd $1; echo "$1" | cut -d'.' -f1 | metabigor net --org -o metabigor.out; findomain -q -t $1 -u subdomain.out; cat subdomain.out | filter-resolved > subdomain-resolved.out; subjack -w subdomain-resolved.out -t 100 -timeout 30 -ssl -a -v -o subjack.out; cat subdomain-resolved.out | xargs dig +short > ips.txt; cat subdomain-resolved.out | naabu -silent -nC -ports full -t 50 | httprobe | tee hosts.out; webanalyze -update; webanalyze -hosts hosts.out > webanalyze.out; dirsearch -L hosts.out -e php,json -x 400,403,429,502,503 -t 200 -F --simple-report dirsearch.out -r; cat hosts.out dirsearch.out > urls.txt; cat urls.txt | xargs -I % linkfinder -d -o cli -i % > linkfinder.out; cat urls.txt | cors-blimey > cors.out; mkdir screenshots; cd screenshots; cat ../urls.txt | xargs -I % gowitness single --url=%; cd ..; cat urls.txt | xargs -I % xsscrapy -u % -c 50 > xsscrapy.out; arjun --urls urls.txt -t 100 --get > arjun.out; meg -d 1000 -v / urls.txt; gf -list | xargs -I % gf %
 
