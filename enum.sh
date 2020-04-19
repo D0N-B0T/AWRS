@@ -29,7 +29,7 @@ echo ""
 echo "$green"[i]"$normal $lightyellow Usage : ./enum.sh example.com"$normal
 echo ""
 
-
+#
 proceso(){
 	{
 		curl -s "http://web.archive.org/cdx/search/cdx?url=*."$dominio"/*&output=text&fl=original&collapse=urlkey" |sort| sed -e 's_https*://__' -e "s/\/.*//" -e 's/:.*//' -e 's/^www\.//' | uniq >>$dominio.txt
