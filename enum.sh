@@ -1,13 +1,7 @@
 #!/bin/bash
 
-#	This tool is presented 'as is' and throuh the time will be improved up.
-#nwo
-#					version 										:) <3 Ty
-#
 #	Please if you like it give me more ideas to make it better.
-#
-#
-# Next update: parameters.. ./tool -u example.com | ./tool -m (for menu)
+
 
 fecha=$(date "+%d%m%Y")
 lightyellow=`echo -en "\e[93m"`;red=`echo -en "\e[31m"`;green=`echo -en "\e[32m"`;normal=`echo -en "\e[0m"`;WHITE=`echo -en "\e[107m"`;
@@ -15,33 +9,50 @@ lightyellow=`echo -en "\e[93m"`;red=`echo -en "\e[31m"`;green=`echo -en "\e[32m"
 
 dominio=$1
 
-echo -e $red
-echo -e "        +@'WWWWWW#%:."
-echo -e "       &@'/        ':+."
-echo -e "  __ e@'/___________\@"
-echo -e "  ##e@#/;'#########/"            $red$WHITE"Easy recon"$normal$red
-echo -e "   e@/"								$red$WHITE "for"$normal$red
-echo -e "  :@/        "					$red$WHITE "BugHunters."$normal$red
-echo -e " @b'\______________ "
-echo -e "  @b\wwwwwwwwwwwww/  "
-echo
-echo ""
-echo "$green"[i]"$normal $lightyellow Usage : ./enum.sh example.com"$normal
-echo ""
 
 #
 proceso(){
-	{
-		curl -s "http://web.archive.org/cdx/search/cdx?url=*."$dominio"/*&output=text&fl=original&collapse=urlkey" |sort| sed -e 's_https*://__' -e "s/\/.*//" -e 's/:.*//' -e 's/^www\.//' | uniq >>$dominio.txt
+
+#	{
+			mkdir $dominio &&	cd $dominio
+
+		#busqueda de subdominios | txt final : $dominio.txt
 		amass enum --passive -d $dominio -json $dominio.json
 		jq .name $dominio.json | sed "s/\"//g"| uniq | tee -a $dominio.txt
 		rm $dominio.json
 		subfinder -d $dominio | grep $dominio |uniq >>$dominio.txt
-		findomain -t $dominio -u $dominio.findomain.txt
+		findomain -q -t $dominio -u subdomain-$dominio.out;
 		cat $dominio.findomain.txt | grep $dominio |uniq >>$dominio.txt
-		# echo -e "No target.\nUsage: bash $0 target.com" && exit || mkdir $1; cd $1; echo "$1" | cut -d'.' -f1 | metabigor net --org -o metabigor.out; findomain -q -t $1 -u subdomain.out; cat subdomain.out | filter-resolved > subdomain-resolved.out; subjack -w subdomain-resolved.out -t 100 -timeout 30 -ssl -a -v -o subjack.out; cat subdomain-resolved.out | xargs dig +short > ips.txt; cat subdomain-resolved.out | naabu -silent -nC -ports full -t 50 | httprobe | tee hosts.out; webanalyze -update; webanalyze -hosts hosts.out > webanalyze.out; dirsearch -L hosts.out -e php,json -x 400,403,429,502,503 -t 200 -F --simple-report dirsearch.out -r; cat hosts.out dirsearch.out > urls.txt; cat urls.txt | xargs -I % linkfinder -d -o cli -i % > linkfinder.out; cat urls.txt | cors-blimey > cors.out; mkdir screenshots; cd screenshots; cat ../urls.txt | xargs -I % gowitness single --url=%; cd ..; cat urls.txt | xargs -I % xsscrapy -u % -c 50 > xsscrapy.out; arjun --urls urls.txt -t 100 --get > arjun.out; meg -d 1000 -v / urls.txt; gf -list | xargs -I % gf %
-	} &> /dev/null
+
+		#metabigor es para scopes donde no tienes limite (like AT&T). no es necesario por ahora.
+		#echo "$dominio" | cut -d'.' -f1 | metabigor net --org -o metabigor-$dominio.out
+
+		cat $dominio.txt | filter-resolved > subdomain-resolved.out
+		subjack -w subdomain-resolved.out -t 100 -timeout 30 -ssl -a -v -o subjack.out
+		cat subdomain-resolved.out | xargs dig +short > ips.txt
+		cat subdomain-resolved.out |sudo ~/go/bin/naabu -silent -nC -ports full -t 50 >> naabu-ports.out
+		cat naabu-ports.out | httprobe | tee hosts.out
+		#webanalyze -update
+		#webanalyze -hosts hosts.out > webanalyze.out
+		python3 ~/tools/dirsearch/dirsearch.py -L hosts.out -e php,json -x 400,403,429,502,503 -t 200 -F --simple-report dirsearch.out -r;
+		cat hosts.out dirsearch.out > urls.txt
+		cat urls.txt | xargs -I % linkfinder -d -o cli -i % > linkfinder.out
+		cat urls.txt | cors-blimey > cors.out
+		#mkdir screenshots; cd screenshots
+		cat ../urls.txt | xargs -I % gowitness single --url=%; cd ..
+		cat urls.txt | xargs -I % xsscrapy -u % -c 50 > xsscrapy.out
+		python3 ~/tools/arjun.py --urls urls.txt -t 100 --get > arjun.out
+		meg -d 1000 -v / urls.txt
+		#gf -list | xargs -I % gf %
+		#end of experimental things.
+
+		curl -s "http://web.archive.org/cdx/search/cdx?url=*."$dominio"/*&output=text&fl=original&collapse=urlkey" |sort| sed -e 's_https*://__' -e "s/\/.*//" -e 's/:.*//' -e 's/^www\.//' | uniq >>$dominio.txt
+
+
+#	} &> /dev/null
 	cat $dominio.txt|sort -u >> $dominio-$fecha.txt
+	echo ""
+	echo "subdomains found: "
 	cat $dominio.txt|httprobe -t 15000 -c 50|cut -d "/" -f3|sort -u |tee alive_$dominio-$fecha.txt
 	echo ""
 	menu
@@ -85,15 +96,31 @@ menu(){
 		echo "running dirsearch, please wait.."
 		touch dirsearch-$dominio.txt
 		tail -f dirsearch-$dominio.txt
-		for i in $(cat alive_$dominio-$fecha.txt); do python3 ~/tools/dirsearch/dirsearch.py -e html -u ${i} >> dirsearch-${i}.txt; done
+		for i in $(cat alive_$dominio-$fecha.txt); do python3 ~/tools/dirsearch/dirsearch.py -e html -u ${i}; done
 		echo "Done."
 		menu
 	fi
 }
 
+echo -e $red
+echo -e "        +@'WWWWWW#%:."
+echo -e "       &@'/        ':+."
+echo -e "  __ e@'/___________\@"
+echo -e "  ##e@#/;'#########/"            $red$WHITE"Easy recon"$normal$red
+echo -e "   e@/"								$red$WHITE "for"$normal$red
+echo -e "  :@/        "					$red$WHITE "BugHunters."$normal$red
+echo -e " @b'\______________ "
+echo -e "  @b\wwwwwwwwwwwww/  "
+echo
+echo ""
+echo "$green"[i]"$normal $lightyellow Usage : ./enum.sh example.com"$normal
+echo ""
+
+
+
 if [[ $# -eq 0 ]]; then
 	exit 0
-	elif [ ! -f ~/github/enum.sh/$1.txt ]; then
+elif [ ! -f ~/github/AWRS-1/${1}/${1}.txt ]; then
 		echo "[+] Script running, please wait."
 		proceso
 	else
@@ -103,6 +130,3 @@ if [[ $# -eq 0 ]]; then
 		menu
 	fi
 }
-
-
-
