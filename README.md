@@ -15,15 +15,17 @@ jq
 uniq
 sublist3r
 subfinder
+findomain
 amass
 nmap
 masscan
-fprobe
-gau
+httprobe
 concurl
 pup
 CeWL
 Dirsearch
+subjack
+arjun
 
 .
 .
@@ -31,4 +33,4 @@ Dirsearch
 and more tba.
 ```
 
-next tool: bigscope.sh
+
