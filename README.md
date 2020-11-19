@@ -1,7 +1,7 @@
 
 # AWRS: Auto Web Recon Script 
 
-
+NOTE: Project abandoned. Found better tool for what i were doing.
 
 ```bash
 
